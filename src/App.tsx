@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion'
 import { CartProvider } from './cart'
+import { AuthProvider } from './auth'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import Home from './pages/Home'
@@ -11,6 +12,10 @@ import Services from './pages/Services'
 import Experience from './pages/Experience'
 import GearPage from './pages/Gear'
 import Order from './pages/Order'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import Account from './pages/Account'
+import OrderDetail from './pages/OrderDetail'
 
 function ScrollProgress() {
   const { scrollYProgress } = useScroll()
@@ -42,6 +47,10 @@ function AnimatedRoutes() {
           <Route path="/experience" element={<Experience />} />
           <Route path="/gear" element={<GearPage />} />
           <Route path="/order" element={<Order />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/account/orders/:id" element={<OrderDetail />} />
           <Route path="*" element={<Home />} />
         </Routes>
       </motion.main>
@@ -52,6 +61,7 @@ function AnimatedRoutes() {
 export default function App() {
   return (
     <BrowserRouter>
+      <AuthProvider>
       <CartProvider>
         <ScrollProgress />
         <div className="shell">
@@ -60,6 +70,7 @@ export default function App() {
           <Footer />
         </div>
       </CartProvider>
+      </AuthProvider>
     </BrowserRouter>
   )
 }

@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import Logo from './Logo'
 import { Basket, Close, Menu, User } from './Icons'
 import { useCart } from '../cart'
+import { initials, useAuth } from '../auth'
 
 const links = [
   { to: '/models', label: 'Models' },
@@ -14,6 +15,7 @@ const links = [
 
 export default function Header() {
   const { count } = useCart()
+  const { user } = useAuth()
   const [open, setOpen] = useState(false)
   const { pathname } = useLocation()
 
@@ -55,9 +57,9 @@ export default function Header() {
             )}
           </AnimatePresence>
         </Link>
-        <button className="icon-btn hide-sm" aria-label="Account">
-          <User />
-        </button>
+        <Link to={user ? '/account' : '/login'} className={'icon-btn hide-sm' + (user ? ' icon-btn-user' : '')} aria-label={user ? 'My account' : 'Log in'}>
+          {user ? initials(user.name) : <User />}
+        </Link>
         <Link to="/order" className="btn btn-dark hide-sm">
           Order
         </Link>
@@ -81,7 +83,7 @@ export default function Header() {
                 <Close />
               </button>
               <nav>
-                {[{ to: '/', label: 'Home' }, ...links, { to: '/order', label: 'Order' }].map((l, i) => (
+                {[{ to: '/', label: 'Home' }, ...links, { to: '/order', label: 'Order' }, user ? { to: '/account', label: 'My account' } : { to: '/login', label: 'Log in' }].map((l, i) => (
                   <motion.div key={l.to} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.08 + i * 0.05 }}>
                     <NavLink to={l.to} end className={({ isActive }) => 'drawer-link' + (isActive ? ' active' : '')}>
                       {l.label}

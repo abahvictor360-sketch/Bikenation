@@ -20,6 +20,7 @@ export default function Footer() {
           <Link to="/models">Models</Link>
           <Link to="/gear">Gear</Link>
           <Link to="/order">Basket</Link>
+          <Link to="/account">My account</Link>
         </div>
         <div>
           <h4>Ride</h4>

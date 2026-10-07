@@ -1,41 +1,43 @@
 import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { itemKey, useCart } from '../cart'
+import { useAuth, type Order as OrderT } from '../auth'
 import { money } from '../data'
 import SectionHead from '../components/SectionHead'
 import Reveal from '../components/Reveal'
-import { Check, Close } from '../components/Icons'
+import { Card, Close, Truck, User as UserIcon } from '../components/Icons'
+
+const round = (n: number) => Math.round(n * 100) / 100
+const PAYMENTS: { id: OrderT['payment']; label: string; note: string }[] = [
+  { id: 'card', label: 'Card', note: 'Visa, Mastercard, Verve' },
+  { id: 'transfer', label: 'Bank transfer', note: 'Details sent by email' },
+  { id: 'delivery', label: 'Pay on delivery', note: 'Gear orders only' },
+]
 
 export default function Order() {
   const { items, setQty, remove, total, clear } = useCart()
-  const [placed, setPlaced] = useState<string | null>(null)
-  const shipping = total > 10000 || total === 0 ? 0 : 25
-  const tax = total * 0.075
+  const { user, placeOrder, updateProfile } = useAuth()
+  const nav = useNavigate()
+  const [payment, setPayment] = useState<OrderT['payment']>('card')
+  const [error, setError] = useState('')
 
-  const submit = (e: FormEvent) => {
+  const delivery = total > 10000 || total === 0 ? 0 : 25
+  const tax = round(total * 0.075)
+  const grand = round(total + delivery + tax)
+  const hasBike = items.some((i) => !i.id.startsWith('helmet'))
+
+  const submit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setPlaced('BN-' + Math.random().toString(36).slice(2, 8).toUpperCase())
+    const f = new FormData(e.currentTarget)
+    if (payment === 'delivery' && hasBike) return setError('Pay on delivery is only available for gear. Choose card or bank transfer for bikes.')
+    const address = String(f.get('address')).trim()
+    const phone = String(f.get('phone')).trim()
+    if (f.get('save')) updateProfile({ address, phone })
+    const order = placeOrder({ items, subtotal: round(total), delivery, tax, total: grand, address, phone, payment })
     clear()
+    nav(`/account/orders/${order.id}?new=1`)
   }
-
-  if (placed)
-    return (
-      <section className="section page-top">
-        <motion.div className="form-card form-done" initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }}>
-          <span className="done-icon">
-            <Check width={34} height={34} />
-          </span>
-          <h2 className="display-3">Order confirmed</h2>
-          <p className="muted">
-            Order <b>{placed}</b> — a confirmation email is on its way.
-          </p>
-          <Link to="/models" className="btn btn-dark">
-            Keep browsing
-          </Link>
-        </motion.div>
-      </section>
-    )
 
   return (
     <section className="section page-top">
@@ -48,9 +50,15 @@ export default function Order() {
             <Link to="/models" className="btn btn-dark">
               Browse models
             </Link>
-            <Link to="/gear" className="btn btn-outline">
-              Shop gear
-            </Link>
+            {user ? (
+              <Link to="/account" className="btn btn-outline">
+                My orders
+              </Link>
+            ) : (
+              <Link to="/gear" className="btn btn-outline">
+                Shop gear
+              </Link>
+            )}
           </div>
         </Reveal>
       ) : (
@@ -93,37 +101,82 @@ export default function Order() {
             <h3>Summary</h3>
             <div className="sum-row">
               <span className="muted">Subtotal</span>
-              <span>{money(total)}</span>
+              <span>{money(round(total))}</span>
             </div>
             <div className="sum-row">
-              <span className="muted">Delivery</span>
-              <span>{shipping ? money(shipping) : 'Free'}</span>
+              <span className="muted">
+                <Truck width={16} height={16} /> Delivery
+              </span>
+              <span>{delivery ? money(delivery) : 'Free'}</span>
             </div>
             <div className="sum-row">
               <span className="muted">Tax (7.5%)</span>
-              <span>{money(Math.round(tax * 100) / 100)}</span>
+              <span>{money(tax)}</span>
             </div>
             <div className="sum-row sum-total">
               <span>Total</span>
-              <span>{money(Math.round((total + shipping + tax) * 100) / 100)}</span>
+              <span>{money(grand)}</span>
             </div>
-            <form className="form form-1" onSubmit={submit}>
-              <label>
-                Full name
-                <input required placeholder="Jane Rider" />
-              </label>
-              <label>
-                Email
-                <input required type="email" placeholder="jane@email.com" />
-              </label>
-              <label>
-                Delivery address
-                <input required placeholder="12 Throttle Lane" />
-              </label>
-              <button className="btn btn-red btn-block" type="submit">
-                Place order
-              </button>
-            </form>
+
+            {user ? (
+              <form className="form form-1" onSubmit={submit}>
+                <div className="checkout-user">
+                  <span className="avatar sm">
+                    <UserIcon width={18} />
+                  </span>
+                  <div>
+                    <strong>{user.name}</strong>
+                    <span className="muted small">{user.email}</span>
+                  </div>
+                </div>
+                <label>
+                  Phone
+                  <input required type="tel" name="phone" defaultValue={user.phone} />
+                </label>
+                <label>
+                  Delivery address
+                  <input required name="address" defaultValue={user.address} placeholder="12 Throttle Lane, Lagos" />
+                </label>
+                <label className="check">
+                  <input type="checkbox" name="save" defaultChecked={!user.address} /> Save to my account
+                </label>
+                <fieldset className="pay">
+                  <legend>
+                    <Card width={16} height={16} /> Payment
+                  </legend>
+                  {PAYMENTS.map((p) => (
+                    <label key={p.id} className={'pay-opt' + (payment === p.id ? ' on' : '')}>
+                      <input type="radio" name="payment" checked={payment === p.id} onChange={() => {
+                          setPayment(p.id)
+                          setError('')
+                        }} />
+                      <span>
+                        <b>{p.label}</b>
+                        <span className="muted small">{p.note}</span>
+                      </span>
+                    </label>
+                  ))}
+                </fieldset>
+                {error && (
+                  <p className="form-error" role="alert">
+                    {error}
+                  </p>
+                )}
+                <button className="btn btn-red btn-block" type="submit">
+                  Place order · {money(grand)}
+                </button>
+              </form>
+            ) : (
+              <div className="checkout-auth">
+                <p className="muted">Log in or create an account to check out. Your basket will be kept.</p>
+                <Link to="/login?next=/order" className="btn btn-dark btn-block">
+                  Log in to checkout
+                </Link>
+                <Link to="/register?next=/order" className="btn btn-outline btn-block">
+                  Create account
+                </Link>
+              </div>
+            )}
           </Reveal>
         </div>
       )}
