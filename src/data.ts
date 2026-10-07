@@ -5,9 +5,9 @@ export type Bike = {
   tagline: string
   price: number
   image: string
-  /** true when the photo is a clean side profile on white — used in the hero carousel */
-  profile?: boolean
-  /** photo has its own studio backdrop, so don't blend it into the page */
+  /** photo faces left — mirrored in the hero so every bike faces the same way */
+  flip?: boolean
+  /** photo has its own studio backdrop, so show it full-bleed */
   backdrop?: boolean
   category: 'Superbike' | 'Sport' | 'Naked' | 'ATV'
   specs: {
@@ -42,7 +42,6 @@ export const bikes: Bike[] = [
     tagline: 'Twin-cylinder track precision.',
     price: 32000,
     image: img('panigale-red'),
-    profile: true,
     category: 'Superbike',
     specs: { fuel: 'Petrol', year: 2024, accel: '3.1s', body: 'Superbike', engine: 'V2 90°', power: '155 hp', mileage: '1,112 mi', topSpeed: '285 km/h' },
     colors: [
@@ -57,7 +56,6 @@ export const bikes: Bike[] = [
     tagline: 'Italian sunshine, 155 horses.',
     price: 33400,
     image: img('panigale-yellow'),
-    profile: true,
     category: 'Superbike',
     specs: { fuel: 'Petrol', year: 2025, accel: '3.0s', body: 'Superbike', engine: 'V2 90°', power: '155 hp', mileage: '0 mi', topSpeed: '285 km/h' },
     colors: [
@@ -72,7 +70,6 @@ export const bikes: Bike[] = [
     tagline: 'MotoGP DNA for the road.',
     price: 28500,
     image: img('yamaha-r1'),
-    profile: true,
     category: 'Superbike',
     specs: { fuel: 'Petrol', year: 2024, accel: '2.9s', body: 'Superbike', engine: 'CP4 998cc', power: '200 hp', mileage: '640 mi', topSpeed: '299 km/h' },
     colors: [{ name: 'Racing Red', hex: '#d71920' }],
@@ -84,7 +81,6 @@ export const bikes: Bike[] = [
     tagline: 'The everyday ninja.',
     price: 6200,
     image: img('kawasaki-ninja-green'),
-    profile: true,
     category: 'Sport',
     specs: { fuel: 'Petrol', year: 2023, accel: '5.4s', body: 'Sport', engine: 'Parallel 296cc', power: '39 hp', mileage: '2,300 mi', topSpeed: '180 km/h' },
     colors: [{ name: 'Lime Green', hex: '#3fb21b' }],
@@ -96,7 +92,6 @@ export const bikes: Bike[] = [
     tagline: 'Racing blue, everyday rider.',
     price: 5800,
     image: img('yamaha-r3'),
-    profile: true,
     category: 'Sport',
     specs: { fuel: 'Petrol', year: 2024, accel: '5.6s', body: 'Sport', engine: 'Parallel 321cc', power: '41 hp', mileage: '0 mi', topSpeed: '188 km/h' },
     colors: [{ name: 'Team Blue', hex: '#1446c8' }],
@@ -108,7 +103,6 @@ export const bikes: Bike[] = [
     tagline: 'Small engine, big attitude.',
     price: 7400,
     image: img('honda-cbr250rr'),
-    profile: true,
     category: 'Sport',
     specs: { fuel: 'Petrol', year: 2024, accel: '5.9s', body: 'Sport', engine: 'Parallel 250cc', power: '41 hp', mileage: '0 mi', topSpeed: '186 km/h' },
     colors: [{ name: 'Grand Prix Red', hex: '#c8102e' }],
@@ -120,7 +114,6 @@ export const bikes: Bike[] = [
     tagline: 'Screaming supersport.',
     price: 13200,
     image: img('yamaha-r6'),
-    backdrop: true,
     category: 'Superbike',
     specs: { fuel: 'Petrol', year: 2023, accel: '3.4s', body: 'Supersport', engine: 'Inline-4 599cc', power: '117 hp', mileage: '3,040 mi', topSpeed: '262 km/h' },
     colors: [{ name: 'Midnight Blue', hex: '#1b2fa8' }],
@@ -176,6 +169,7 @@ export const bikes: Bike[] = [
     tagline: 'Four wheels, no roads required.',
     price: 9800,
     image: img('kawasaki-atv'),
+    flip: true,
     category: 'ATV',
     specs: { fuel: 'Petrol', year: 2024, accel: '7.5s', body: 'Quad / ATV', engine: 'V-Twin 749cc', power: '47 hp', mileage: '80 mi', topSpeed: '110 km/h' },
     colors: [{ name: 'Lime Green', hex: '#5cc41e' }],
@@ -184,11 +178,13 @@ export const bikes: Bike[] = [
 
 export const gear: Gear[] = [
   { id: 'helmet-i11', name: 'HJC i11 Full-face', kind: 'Helmet', price: 350.5, image: img('helmet-hjc-i11') },
-  { id: 'helmet-venom', name: 'Venom Edition Helmet', kind: 'Helmet', price: 489, image: img('helmet-venom'), backdrop: true },
+  { id: 'helmet-venom', name: 'Venom Edition Helmet', kind: 'Helmet', price: 489, image: img('helmet-venom') },
   { id: 'helmet-rpha', name: 'HJC Modular Carbon', kind: 'Helmet', price: 420, image: img('helmet-hjc-rpha') },
 ]
 
-export const heroBikes = bikes.filter((b) => b.profile)
+export const heroBikes = bikes
 export const getBike = (id: string) => bikes.find((b) => b.id === id)
 export const money = (n: number) =>
-  '$' + n.toLocaleString('en-US', { minimumFractionDigits: n % 1 ? 1 : 0, maximumFractionDigits: 2 })
+  '$' + n.toLocaleString('en-US', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 })
+/** Number only, for the big hero/detail price where the $ is styled separately. */
+export const amount = (n: number) => money(n).slice(1)

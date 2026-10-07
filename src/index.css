@@ -17,7 +17,7 @@ html { scroll-behavior: smooth; }
 body {
   font-family: 'Urbanist', system-ui, sans-serif;
   color: var(--ink);
-  background: radial-gradient(120% 80% at 50% 0%, #7a6262 0%, #3b3434 45%, #2a2626 100%) fixed;
+  background: var(--bg);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
@@ -42,14 +42,7 @@ input, select, textarea { font: inherit; color: inherit; }
 
 .scroll-progress { position: fixed; inset: 0 0 auto; height: 3px; background: var(--red); transform-origin: 0 50%; z-index: 100; }
 
-.shell {
-  max-width: 1440px;
-  margin: clamp(0px, 4vw, 56px) auto;
-  background: var(--bg);
-  border-radius: clamp(0px, 2vw, 28px);
-  overflow: clip;
-  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.45);
-}
+.shell { background: var(--bg); overflow: clip; min-height: 100vh; }
 
 /* ---------- Buttons ---------- */
 .btn {
@@ -130,11 +123,17 @@ input, select, textarea { font: inherit; color: inherit; }
   border-radius: 50%; border-bottom: 1.5px solid #cfcfcf;
   background: radial-gradient(closest-side, rgba(0, 0, 0, 0.12), transparent);
 }
-.main-bike-wrap { position: absolute; inset: 0; display: grid; place-items: center; z-index: 2; pointer-events: none; }
-.main-bike { width: min(62%, 920px); max-height: 88%; filter: drop-shadow(0 30px 30px rgba(0,0,0,.18)); cursor: grab; pointer-events: auto; touch-action: pan-y; }
+.main-bike-wrap { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 2; pointer-events: none; }
+.main-bike { width: auto; height: auto; max-width: min(62%, 920px); max-height: 82%; filter: drop-shadow(0 30px 30px rgba(0,0,0,.18)); cursor: grab; pointer-events: auto; touch-action: pan-y; }
 .main-bike:active { cursor: grabbing; }
 .side-bike { position: absolute; top: 34%; width: clamp(140px, 20vw, 300px); z-index: 1; filter: saturate(0.85); }
-.side-bike img { width: 100%; }
+.side-bike img { width: 100%; max-height: clamp(120px, 16vw, 240px); }
+/* individual `scale` composes with Framer Motion's transform, so mirroring survives the slide animation */
+.flipped { scale: -1 1; }
+.hero-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-top: 14px; font-weight: 600; }
+.hero-meta .chip { background: #fff; }
+.hero-meta a { color: var(--red); }
+.slide-count { align-self: center; padding: 0 10px 0 8px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--muted); }
 .side-left { left: 0; transform: translateX(-30%); }
 .side-right { right: 0; transform: translateX(30%); }
 .side-bike:hover { filter: none; }
@@ -357,14 +356,13 @@ select:focus, input:focus, textarea:focus { border-color: var(--ink); }
 
 /* =================== Mobile =================== */
 @media (max-width: 640px) {
-  .shell { margin: 0; border-radius: 0; }
   .header { padding: 14px 16px; }
   .icon-btn { width: 46px; height: 46px; }
   .hero-top { flex-direction: column; gap: 10px; padding-top: 18px; }
   .hero-price { text-align: left; }
   .hero-price .price-big { margin-bottom: 6px; }
   .stage { height: 64vw; min-height: 240px; margin-top: 0; }
-  .main-bike { width: 92%; }
+  .main-bike { max-width: 92%; }
   .side-bike { display: none; }
   .carousel-ctrl button { width: 42px; height: 42px; }
   .dash { grid-template-columns: 1fr; padding: 18px 8px 8px; }

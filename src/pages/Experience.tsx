@@ -6,7 +6,7 @@ import Reveal from '../components/Reveal'
 import { Check } from '../components/Icons'
 
 const events = [
-  { date: 'Oct 18', title: 'Track Day — Silverstone Circuit', tag: 'Track', image: '/images/yamaha-r6.webp', backdrop: true },
+  { date: 'Oct 18', title: 'Track Day — Silverstone Circuit', tag: 'Track', image: '/images/yamaha-r6.webp' },
   { date: 'Nov 02', title: 'Sunrise Coastal Group Ride', tag: 'Tour', image: '/images/kawasaki-ninja-white.webp' },
   { date: 'Nov 16', title: 'Off-road ATV Adventure', tag: 'Off-road', image: '/images/kawasaki-atv.webp' },
 ]
@@ -44,8 +44,8 @@ export default function Experience() {
         <div className="event-list">
           {events.map((e, i) => (
             <Reveal key={e.title} className="event" delay={i * 0.08}>
-              <div className={'event-img' + (e.backdrop ? ' fill' : '')}>
-                <img src={e.image} alt="" className={e.backdrop ? 'img-backdrop' : 'img-blend'} />
+              <div className="event-img">
+                <img src={e.image} alt="" className="img-blend" />
               </div>
               <div className="event-body">
                 <span className="chip">{e.tag}</span>

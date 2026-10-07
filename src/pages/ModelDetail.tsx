@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { bikes, getBike, money } from '../data'
+import { amount, bikes, getBike, money } from '../data'
 import { useCart } from '../cart'
 import BikeImage from '../components/BikeImage'
 import Reveal from '../components/Reveal'
@@ -60,7 +60,7 @@ export default function ModelDetail() {
             <p className="muted lead">{bike.tagline}</p>
             <div className="price-big detail-price">
               <span className="dollar">$</span>
-              {bike.price.toLocaleString('de-DE')}
+              {amount(bike.price)}
             </div>
           </Reveal>
           <Reveal delay={0.1}>

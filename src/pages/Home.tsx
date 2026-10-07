@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AnimatePresence, motion, useScroll, useSpring, useTransform } from 'framer-motion'
-import { bikes, gear, heroBikes, money } from '../data'
+import { amount, bikes, gear, heroBikes, money } from '../data'
 import { useCart } from '../cart'
 import { ArrowLeft, ArrowRight, Calendar, Check, Engine, Fuel, Gauge, Rider, Wheel } from '../components/Icons'
 import BikeImage from '../components/BikeImage'
@@ -21,17 +21,22 @@ const wrap = (i: number, n: number) => ((i % n) + n) % n
 
 export default function Home() {
   const [[index, dir], setState] = useState<[number, number]>([0, 0])
-  const [paint, setPaint] = useState(0)
+  // null = the bike's factory paint; a swatch index = custom paint chosen by the rider
+  const [paint, setPaint] = useState<number | null>(null)
   const { add } = useCart()
   const bike = heroBikes[index]
   const prev = heroBikes[wrap(index - 1, heroBikes.length)]
   const next = heroBikes[wrap(index + 1, heroBikes.length)]
-  const go = (d: number) => setState(([i]) => [wrap(i + d, heroBikes.length), d])
+  const go = (d: number) => {
+    setState(([i]) => [wrap(i + d, heroBikes.length), d])
+    setPaint(null)
+  }
 
   // Paint swatch that matches one of the bike's factory images swaps the hero photo.
-  const factory = bike.colors.find((c) => c.hex.toLowerCase() === PAINTS[paint].hex.toLowerCase() && c.image)
+  const chosen = paint === null ? null : PAINTS[paint]
+  const factory = chosen && bike.colors.find((c) => c.hex.toLowerCase() === chosen.hex.toLowerCase())
   const heroSrc = factory?.image ?? bike.image
-  const paintExtra = factory || bike.colors[0]?.hex.toLowerCase() === PAINTS[paint].hex ? 0 : PAINT_PRICE
+  const paintExtra = chosen && !factory ? PAINT_PRICE : 0
 
   const heroRef = useRef<HTMLElement>(null)
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] })
@@ -58,6 +63,14 @@ export default function Home() {
                 {bike.name} <span className="red">{bike.brand}</span>
               </h1>
               <p className="muted lead">{bike.tagline}</p>
+              <div className="hero-meta">
+                <span className="chip">{bike.category}</span>
+                <span>{bike.specs.power}</span>
+                <span>{bike.specs.topSpeed}</span>
+                <Link to={`/models/${bike.id}`} className="link-under">
+                  View details →
+                </Link>
+              </div>
             </motion.div>
           </AnimatePresence>
           <AnimatePresence mode="wait">
@@ -71,7 +84,7 @@ export default function Home() {
             >
               <div className="price-big">
                 <span className="dollar">$</span>
-                {(bike.price + paintExtra).toLocaleString('de-DE')}
+                {amount(bike.price + paintExtra)}
               </div>
               <Link to="/models" className="muted lead link-under">
                 Explore bikes by price.
@@ -93,7 +106,7 @@ export default function Home() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <BikeImage src={prev.image} alt="" />
+              <BikeImage src={prev.image} alt="" className={prev.flip ? 'flipped' : ''} />
             </motion.button>
             <motion.button
               key={'n' + next.id}
@@ -105,7 +118,7 @@ export default function Home() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <BikeImage src={next.image} alt="" />
+              <BikeImage src={next.image} alt="" className={next.flip ? 'flipped' : ''} />
             </motion.button>
           </AnimatePresence>
 
@@ -115,7 +128,7 @@ export default function Home() {
                 key={heroSrc}
                 src={heroSrc}
                 alt={`${bike.brand} ${bike.name}`}
-                className="main-bike"
+                className={"main-bike" + (bike.flip && heroSrc === bike.image ? " flipped" : "")}
                 custom={dir}
                 variants={{
                   enter: (d: number) => ({ x: d >= 0 ? '45%' : '-45%', opacity: 0, scale: 0.8 }),
@@ -138,6 +151,9 @@ export default function Home() {
           </motion.div>
 
           <div className="carousel-ctrl">
+            <span className="slide-count">
+              {String(index + 1).padStart(2, '0')} / {String(heroBikes.length).padStart(2, '0')}
+            </span>
             <button aria-label="Previous bike" onClick={() => go(-1)}>
               <ArrowLeft />
             </button>
@@ -191,11 +207,11 @@ export default function Home() {
               <p>
                 <b>Your bike, your style</b> — choose the colors that define your ride and make it stand out from the crowd.
               </p>
-              <div className="price-md">{paintExtra ? '+' + money(paintExtra) : 'Included'}</div>
+              <div className="price-md">{paintExtra ? '+' + money(paintExtra) : chosen ? 'Included' : '+' + money(PAINT_PRICE)}</div>
               <button
                 className="btn btn-dark btn-sm"
                 onClick={() =>
-                  add({ id: bike.id, name: `${bike.brand} ${bike.name}`, price: bike.price + paintExtra, image: heroSrc, variant: PAINTS[paint].name })
+                  add({ id: bike.id, name: `${bike.brand} ${bike.name}`, price: bike.price + paintExtra, image: heroSrc, variant: chosen?.name ?? bike.colors[0]?.name })
                 }
               >
                 Add to order
