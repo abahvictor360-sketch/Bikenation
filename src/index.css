@@ -104,7 +104,7 @@ input, select, textarea { font: inherit; color: inherit; }
   position: fixed; top: 0; right: 0; bottom: 0; width: min(360px, 86vw); z-index: 61;
   background: var(--ink); color: #fff; padding: 90px 28px 28px;
 }
-.drawer-close { position: absolute; top: 20px; right: 20px; background: #2a2a2a; color: #fff; }
+.drawer-close, .drawer-close:hover { position: absolute; top: 20px; right: 20px; background: #2a2a2a; color: #fff; }
 .drawer-link { display: block; font-size: 2rem; font-weight: 700; padding: 10px 0; border-bottom: 1px solid #2a2a2a; letter-spacing: -0.02em; }
 .drawer-link.active { color: var(--red); }
 
@@ -323,7 +323,8 @@ select:focus, input:focus, textarea:focus { border-color: var(--ink); }
 .footer a:hover { color: var(--red); }
 .footer .muted { color: #a5a5a5; }
 .footer-blurb { max-width: 300px; margin-top: 12px; }
-.footer-bottom { margin-top: 40px; padding-top: 20px; border-top: 1px solid #2a2a2a; font-size: 0.85rem; }
+.footer-bottom { margin-top: 40px; padding-top: 20px; border-top: 1px solid #2a2a2a; font-size: 0.85rem; display: flex; justify-content: space-between; gap: 10px 30px; flex-wrap: wrap; }
+.footer-note { max-width: 560px; font-size: 0.78rem; color: #7d7d7d; }
 
 /* =================== Tablet =================== */
 @media (max-width: 1180px) {

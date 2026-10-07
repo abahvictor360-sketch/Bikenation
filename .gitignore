@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Social-media kit (large files, shared directly rather than committed)
+marketing/

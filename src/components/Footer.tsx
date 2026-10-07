@@ -33,7 +33,12 @@ export default function Footer() {
           <span className="muted">hello@bikenation.app</span>
         </div>
       </Reveal>
-      <p className="footer-bottom muted">© {new Date().getFullYear()} Bikenation. All rights reserved.</p>
+      <div className="footer-bottom muted">
+        <p>© {new Date().getFullYear()} Bikenation. All rights reserved.</p>
+        <p className="footer-note">
+          Concept project — not affiliated with Ducati, Yamaha, Kawasaki, Honda or HJC. Brand names and product photos belong to their respective owners.
+        </p>
+      </div>
     </footer>
   )
 }

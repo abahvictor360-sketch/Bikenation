@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import Logo from './Logo'
@@ -68,6 +69,8 @@ export default function Header() {
         </button>
       </div>
 
+      {/* Portalled to <body>: the header's backdrop-filter would otherwise trap these fixed layers inside it */}
+      {createPortal(
       <AnimatePresence>
         {open && (
           <>
@@ -94,7 +97,9 @@ export default function Header() {
             </motion.aside>
           </>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body,
+      )}
     </header>
   )
 }
